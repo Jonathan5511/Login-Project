@@ -1,8 +1,9 @@
-import React, { useState, useEffect,useReducer } from 'react';
+import React, { useState, useEffect,useReducer,useContext } from 'react';
 
 import Card from '../UI/Card/Card';
 import classes from './Login.module.css';
 import Button from '../UI/Button/Button';
+import AuthContext from '../../store/auth-context';
 
 const emailReducer = (state,action) =>{
   if(action.type==='USER_INPUT'){
@@ -36,43 +37,48 @@ const Login = (props) => {
   const [emailState, dispatchEmail]=useReducer(emailReducer,{value:'',isValid:false});
   const [passwordState, dispatchPassword]=useReducer(passwordReducer,{value:'', isValid:false});
 
-  // useEffect(()=>{
-  //   const handler =setTimeout(()=>{
-  //     setFormIsValid(
-  //       enteredEmail.includes('@') && enteredPassword.trim().length > 6 && enteredCname.trim().length !==0
-  //     );
-  //   },500)
+  const authCtx=useContext(AuthContext);
 
-  //   return ()=>{
-  //     clearTimeout(handler);
-  //   };
+  const{isValid: emailIsValid}=emailState;
+  const{isValid: passwordIsValid}=passwordState;
 
-  // },[enteredEmail,enteredPassword, enteredCname])
+  useEffect(()=>{
+    const handler =setTimeout(()=>{
+      setFormIsValid(
+        emailIsValid && passwordIsValid && enteredCname.trim().length !==0
+      );
+    },500)
+
+    return ()=>{
+      clearTimeout(handler);
+    };
+
+  },[emailIsValid,passwordIsValid, enteredCname])
 
   const emailChangeHandler = (event) => {
     dispatchEmail({type:'USER_INPUT', val: event.target.value}) 
     
-    setFormIsValid(
-          event.target.value.includes('@') && passwordState.isValid && enteredCname.trim().length !==0
-        );
+    // setFormIsValid(
+    //       event.target.value.includes('@') && passwordState.isValid && enteredCname.trim().length !==0
+    //     );
 
   };
 
   const passwordChangeHandler = (event) => {
     dispatchPassword({type:'USER_INPUT', val: event.target.value})
 
-    setFormIsValid(
-      emailState.isValid && event.target.value.trim().length > 6 && enteredCname.trim().length !==0
-    );
+    // setFormIsValid(
+    //   emailState.isValid && event.target.value.trim().length > 6 && enteredCname.trim().length !==0
+    // );
 
   };
 
   const cnameChangeHandler = (event) => {
     setEnteredCname(event.target.value);
 
-    setFormIsValid(
-      emailState.isValid && passwordState.isValid && event.target.value.trim().length !==0
-    );
+    // setFormIsValid(
+    //   emailState.isValid && passwordState.isValid && event.target.value.trim().length !==0
+    // );
 
   };
 
@@ -90,7 +96,7 @@ const Login = (props) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    props.onLogin(emailState.value, passwordState.value);
+    authCtx.onLogin(emailState.value, passwordState.value);
   };
 
   return (
